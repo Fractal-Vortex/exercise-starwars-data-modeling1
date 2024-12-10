@@ -13,50 +13,57 @@ class User(Base):
     last_name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
     
-    posts = relationship("Posts", back_populates="user")
-    comments = relationship("Comments", back_populates="author")
-    followers_from = relationship("Followers", back_populates="user_from")
-    followers_to = relationship("Followers", back_populates="user_to")
+
+    favorites = relationship("Favorites", back_populates="user")
 
 
-class Posts(Base):
-    __tablename__ = 'post'
+
+class Characters(Base):
+    __tablename__ = 'characters'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    specie = Column(String(100))
+    affiliation = Column(String(100))
+
+    favorite = relationship("Favorites", back_populates="character")
+
+class Planets(Base):
+    __tablename__ = 'planets'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    climate = Column(String(100))
+    terrain = Column(String(100))
+
+    favorites = relationship("Favorites", back_populates="planet")
+
+
+class Ships(Base):
+    __tablename__ = 'ships'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    model = Column(String(100))
+    manufacturer = Column(String(100))
+
+    favorites = relationship("Favorites", back_populates="ship")
+
+
+
+class Favorites(Base):
+    __tablename__ = 'favorites'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-
-    user = relationship("User", back_populates="posts")
-    comments = relationship("Comments", back_populates="post")
-    media = relationship("Media", back_populates="post")
-
-
-class Comments(Base):
-    __tablename__ = 'comment'
-    id = Column(Integer, primary_key=True)
-    comment_text = Column(String, nullable=False)
-    author_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    post_id = Column(Integer, ForeignKey("post.id"))
-
-    author = relationship("User", back_populates="comments")
-    post = relationship("Posts", back_populates="comments")
+    character_id = Column(Integer, ForeignKey("characters.id"), nullable=True)
+    planet_id = Column(Integer, ForeignKey("planets.id"), nullable=True)
+    ship_id = Column(Integer, ForeignKey("ships.id"), nullable=True)
 
 
-class Media(Base):
-    __tablename__ = 'media'
-    id = Column(Integer, primary_key=True)
-    type = Column(Enum('ACTIVE', 'INACTIVE', 'BANNED', name='user_status'), nullable=False)
-    url = Column(String, nullable=False)
-    post_id = Column(Integer, ForeignKey("post.id"))
 
-    post = relationship("Posts", back_populates="media")
+    user = relationship("User", back_populates="favorites")
+    character = relationship("Characters", back_populates="favorites")
+    planet = relationship("Planets", back_populates="favorites")
+    ship = relationship("Ships", back_populates="favorites")
 
 
-class Followers(Base):
-    __tablename__ = 'followers'
-    user_from_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
-    user_to_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
-
-    user_from = relationship("User", back_populates="followers_from")
-    user_to = relationship("User", back_populates="followers_to")
 
     def to_dict(self):
         return {}
